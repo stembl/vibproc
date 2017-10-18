@@ -2,6 +2,37 @@
 import time
 import scipy as sp
 import pandas as pd
+import matplotlib.pyplot as plt
+
+def toWindow(data):
+    '''
+    Asks user if the data needs to be windowed and what the window size
+    should be.
+    '''
+
+    ncols = data.shape[1] - 1
+    fig = plt.figure()
+    for i in range(ncols):
+        plt.subplot(ncols, 1, i+1)
+        plt.plot (data.iloc[:,0], data.iloc[:,i+1])
+    plt.show(block=False)
+
+    print('\n')
+    win = input('Does the data need to be windowed? [Yes / No] ')
+    print('\n')
+
+    if win.upper() == 'YES':
+        winmin = int(input('What is the first data point? '))
+        print('\n')
+        winmax = int(input('What is the last data point? '))
+        print('\n')
+
+        data = data[(data.Time >= winmin) & (data.Time < winmax)]
+        data.reset_index(drop=True, inplace=True)
+
+    plt.close(fig)
+
+    return(data)
 
 def isHeader(path):
     '''
@@ -96,11 +127,21 @@ def path2data(path):
     if path[-4:] == '.csv':
         data_single = csv2data(path)
 
+        data_single = toWindow(data_single)
+
         ncols = data_single.shape[1]
         maxtime = max(data_single.Time)
         eventTime = 60 # [seconds] How long should each event be
         sampPerE = int(sp.floor(data_single.shape[0]/(maxtime/eventTime)))
         numE = int(sp.floor(maxtime/eventTime))
+
+        header0 = list(data_single.columns.values)
+        header1 = []
+        for i in range(numE):
+            header1.append('E' + str(i))
+        headers = [header1, header0]
+
+        data = pd.MultiIndex.from_product(iterables, names=['Events', 'Response'])
 
         data = sp.zeros((numE, sampPerE-1, ncols))
         for i in range(numE):
