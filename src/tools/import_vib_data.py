@@ -74,10 +74,10 @@ def csv2data(path):
         for i in range(ncols-1):
             headers.append(('R%i' %(i+1)))
 
-        data = pd.read_csv(path, header = None, dtype='float32')
+        data = pd.read_csv(path, header = None, dtype='float16')
         data.columns = [headers]
     else:
-        data = pd.read_csv(path, dtype='float32')
+        data = pd.read_csv(path, dtype='float16')
         data.rename(columns = {data.columns[0]:'Time'}, inplace = True)
 
     ## Delete Empty columns
@@ -135,19 +135,33 @@ def path2data(path):
         sampPerE = int(sp.floor(data_single.shape[0]/(maxtime/eventTime)))
         numE = int(sp.floor(maxtime/eventTime))
 
-        header0 = list(data_single.columns.values)
-        header1 = []
-        for i in range(numE):
-            header1.append('E' + str(i))
-        headers = [header1, header0]
+        #header0 = list(data_single.columns.values)
+        #header1 = []
+        #for i in range(numE):
+        #    header1.append('E' + str(i))
+        #headers = [header1, header0]
 
-        data = pd.MultiIndex.from_product(iterables, names=['Events', 'Response'])
+        # Initialize Time Column
+        #time_init = sp.zeros([sampPerE, 1])
+        #time_init = []
+        #for i in range(sampPerE):
+            #time_init[i] = data_single.iloc[i,0]
+        #    time_init.append(data_single.iloc[i,0])
 
-        data = sp.zeros((numE, sampPerE-1, ncols))
+        #import itertools
+        #index_init = list(itertools.product(header1, time_init))
+        #index = pd.MultiIndex.from_tuples(index_init, names=['Events', 'Time'])
+
+
+        #data_index = pd.MultiIndex.from
+        #data_index = pd.MultiIndex.from_product(headers, names=['Events', 'Response'])
+
+        #data_init = pd.DataFrame(sp.zeros((numE, sampPerE-1, ncols)), index = data_index)
+        data = {}
         for i in range(numE):
             data[i] = data_single.iloc[(i)*sampPerE:((i+1)*sampPerE-1), :]
 
-        #data = pd.Panel(data)
+        data = pd.Panel(data)
 
         toc = time.clock()
 

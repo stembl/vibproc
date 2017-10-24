@@ -1,0 +1,11 @@
+I have a large 3D data set and when I try to use Pandas I run out of memory.  Specifically I am looking at vibration data.  I have 1000 events with 20k data points each.  Each data point has a [Time, X, Y, Z] component.
+
+Example:
+
+cols = ['Time', 'R1', 'R2', 'R3']
+
+df = {}
+for i in range(1000):
+    df[i] = pd.DataFrame(sp.float32(sp.random.randn(20000, 4)), columns = cols)
+
+df = pd.Panel(df)
