@@ -1,0 +1,2 @@
+* Need to submit pandas panels solution
+* Up to calculating the STD in data features. Currently getting NANs.

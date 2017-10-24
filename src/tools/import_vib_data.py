@@ -25,7 +25,6 @@ def toWindow(data):
         winmin = int(input('What is the first data point? '))
         print('\n')
         winmax = int(input('What is the last data point? '))
-        print('\n')
 
         data = data[(data.Time >= winmin) & (data.Time < winmax)]
         data.reset_index(drop=True, inplace=True)
@@ -100,11 +99,11 @@ def csv2data(path):
 
     ## Remove gravity bias
     for i in range(data.shape[1]-1):
-        data.iloc[:,i+1] = data.iloc[:,i+1] - sp.mean(data.iloc[:,i+1])
+        data.iloc[:,i+1] = data.iloc[:,i+1] - sp.mean(sp.nan_to_num(data.iloc[:,i+1]))
 
     return(data)
 
-def path2data(path):
+def path2data(path, eventtime = 60):
     '''
     Given the path to either a folder or file name, generate a dataframe
     with all data stacked and filtered.
@@ -122,11 +121,17 @@ def path2data(path):
     * All datafiles have the same time step.
     '''
     tic = time.clock()
+    pd.options.mode.chained_assignment = None  # default='warn'
 
     ## Return the results for a single file
     if path[-4:] == '.csv':
+
+        print("\n")
+        print("Pulling data from path... \n")
         data_single = csv2data(path)
 
+        print("\n")
+        print("Printing overview... \n")
         data_single = toWindow(data_single)
 
         ncols = data_single.shape[1]
@@ -134,34 +139,21 @@ def path2data(path):
         eventTime = 60 # [seconds] How long should each event be
         sampPerE = int(sp.floor(data_single.shape[0]/(maxtime/eventTime)))
         numE = int(sp.floor(maxtime/eventTime))
+        dt = data_single.Time[2]-data_single.Time[1]
+        time_col = data_single.Time[0:numE-1] # Use this column for every event
 
-        #header0 = list(data_single.columns.values)
-        #header1 = []
-        #for i in range(numE):
-        #    header1.append('E' + str(i))
-        #headers = [header1, header0]
-
-        # Initialize Time Column
-        #time_init = sp.zeros([sampPerE, 1])
-        #time_init = []
-        #for i in range(sampPerE):
-            #time_init[i] = data_single.iloc[i,0]
-        #    time_init.append(data_single.iloc[i,0])
-
-        #import itertools
-        #index_init = list(itertools.product(header1, time_init))
-        #index = pd.MultiIndex.from_tuples(index_init, names=['Events', 'Time'])
-
-
-        #data_index = pd.MultiIndex.from
-        #data_index = pd.MultiIndex.from_product(headers, names=['Events', 'Response'])
-
-        #data_init = pd.DataFrame(sp.zeros((numE, sampPerE-1, ncols)), index = data_index)
+        print("\n")
+        print("Cleaning data... \n")
         data = {}
         for i in range(numE):
-            data[i] = data_single.iloc[(i)*sampPerE:((i+1)*sampPerE-1), :]
+            name = 'E' + str(i)
+            data[name] = data_single.iloc[(i)*sampPerE:((i+1)*sampPerE-1), :]
+            data[name].index = range(len(data[name].index)) #resets the index at 0
 
-        data = pd.Panel(data)
+            # Set the time to be the same across all events
+            data[name].Time = time_col
+
+        data_panel = pd.Panel(data)
 
         toc = time.clock()
 
@@ -207,10 +199,10 @@ def path2data(path):
             # Determine if this event has the fewest samples
             if len(data[name])<samp_min: samp_min = len(data[name])
 
-        data = pd.Panel(data)
+        data_panel = pd.Panel(data)
 
         # Set all events to the same sample length
-        data = data[:,0:samp_min-1,:]
+        data_panel = data[:,0:samp_min-1,:]
 
         toc = time.clock()
 
@@ -218,7 +210,7 @@ def path2data(path):
         print('# Samples per Event: %i' %samp_min)
         print('Time to collect and filter data: %.1f [s]' %(toc-tic))
 
-    return data
+    return data_panel
 
 #data = path2data(path)
 
