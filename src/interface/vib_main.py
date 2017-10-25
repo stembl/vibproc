@@ -3,11 +3,14 @@
 import sys, os
 import matplotlib.pyplot as plt
 
+
 #sys.path.append(os.path.join(os.path.dirname(__file__), "../tools/"))
 sys.path.append("../tools/")
+sys.path.append("../../data/")
 
 from open_file_folder import *
 from import_vib_data import *
+from data_features import *
 
 ## Required Information
 
@@ -42,4 +45,10 @@ peaks, mean = vib_peaks(data, th)
 sig3_max, sig3_min = sigma_calc(peaks, 3)
 
 # Input Profile Label defined at the top
+input_profile = vib_profiles(input_profile_label)
+
+avg_psd, max_psd, min_psd = psd_avg_data(data)
+
+plot_psd(data_psd, cols, input_profile)
+
 input_profile = vib_profiles(input_profile_label)

@@ -1,2 +1,7 @@
-* Need to submit pandas panels solution
-* Up to calculating the STD in data features. Currently getting NANs.
+* Need to submit pandas panels solution, what causes this behavior
+* make a reference call to psd plot_psd for ref input
+* create a workflow for inputting ref Information
+* create workflow for all required information at top.
+* currently psd plot assumes reference is standard
+* peaks needs to handle single data file, find and record a single peak for everything over threshhold.
+* for final presentation I want to pass all the data to it from the main
