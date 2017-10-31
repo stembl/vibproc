@@ -16,8 +16,8 @@ from data_features import *
 
 # Input Profile
 #  This can either be an industry standard or a .csv file.
-input_profile_label = 'profiles/lattice_20170307-test2_logger0.csv'
-#input_profile_label = 'ista air ride'
+#input_profile_label = 'profiles/lattice_20170307-test2_logger0.csv'
+input_profile_label = 'ista air ride'
 
 # Title of Report
 title = 'Javelin Transportation 08/25/2017, Server, Logger #2'
@@ -37,7 +37,18 @@ print(path)
 print("\n")
 
 # Import and clean vibration data
+# Returns data, broken up into segments of X seconds.
+# It is quicker to FFT a series of data and average the results
 data = path2data(path, eventtime = 60)
+
+# Import data as a single file for visualization along the time axis.
+print("\n")
+print("Pulling data from path... \n")
+dataS = csv2data(path)
+
+print("\n")
+print("Printing overview... \n")
+dataS = toWindow(dataS)
 
 # Calculate dataset features
 th = 0.5    # Threshhold, [G]

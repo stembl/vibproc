@@ -3,5 +3,5 @@
 * create a workflow for inputting ref Information
 * create workflow for all required information at top.
 * currently psd plot assumes reference is standard
-* peaks needs to handle single data file, find and record a single peak for everything over threshhold.
+* peaks needs to handle single data file, find and record a single peak for everything over threshold.
 * for final presentation I want to pass all the data to it from the main
